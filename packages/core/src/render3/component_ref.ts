@@ -77,6 +77,10 @@ function getNamespace(elementName: string): string|null {
 class ChainedInjector implements Injector {
   constructor(private injector: Injector, private parentInjector: Injector) {}
 
+  get __ngModuleInjector__() {
+    return this.parentInjector;
+  }
+
   get<T>(token: ProviderToken<T>, notFoundValue?: T, flags?: InjectFlags): T {
     const value = this.injector.get<T|typeof NOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR>(
         token, NOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR, flags);

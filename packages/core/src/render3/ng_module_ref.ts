@@ -33,6 +33,12 @@ export function createNgModuleRef<T>(
     ngModule: Type<T>, parentInjector?: Injector): viewEngine_NgModuleRef<T> {
   return new NgModuleRef<T>(ngModule, parentInjector ?? null);
 }
+
+function patchIntoParentModuleRef(parentNgModuleRef: any, ngModuleRef: any) {
+  parentNgModuleRef.__children__ ||= [];
+  parentNgModuleRef.__children__.push(ngModuleRef);
+}
+
 export class NgModuleRef<T> extends viewEngine_NgModuleRef<T> implements InternalNgModuleRef<T>,
                                                                          EnvironmentInjector {
   // tslint:disable-next-line:require-internal-with-underscore
@@ -76,6 +82,10 @@ export class NgModuleRef<T> extends viewEngine_NgModuleRef<T> implements Interna
     // circular error that will eventually error out, because the injector isn't created yet.
     this._r3Injector.resolveInjectorInitializers();
     this.instance = this.get(ngModuleType);
+
+    if (ngDevMode) {
+      patchIntoParentModuleRef(this._parent, this);
+    }
   }
 
   get(token: any, notFoundValue: any = Injector.THROW_IF_NOT_FOUND,

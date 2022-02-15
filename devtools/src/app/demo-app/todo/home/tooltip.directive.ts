@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Directive, HostListener} from '@angular/core';
+import {Attribute, Directive, ElementRef, HostListener, SkipSelf} from '@angular/core';
 
 @Directive({
   selector: '[appTooltip]',
@@ -21,7 +21,7 @@ export class TooltipDirective {
     },
   };
 
-  constructor() {
+  constructor(@Attribute('class') private c: string, @SkipSelf() elementRef: ElementRef) {
     // setInterval(() => this.nested.child.grandchild.prop++, 500);
   }
 

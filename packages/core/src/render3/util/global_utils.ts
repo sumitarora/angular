@@ -5,11 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import {ReflectionCapabilities} from '../../reflection/reflection_capabilities';
 import {assertDefined} from '../../util/assert';
 import {global} from '../../util/global';
 import {setProfiler} from '../profiler';
+
 import {applyChanges} from './change_detection_utils';
-import {getComponent, getContext, getDirectiveMetadata, getDirectives, getHostElement, getInjector, getListeners, getOwningComponent, getRootComponents} from './discovery_utils';
+import {getComponent, getContext, getDirectiveMetadata, getDirectives, getHostElement, getInjector, getInjectorResolutionPath, getListeners, getNgModuleTree, getOwningComponent, getRootComponents} from './discovery_utils';
 
 
 
@@ -57,6 +59,8 @@ export function publishDefaultGlobalUtils() {
     publishGlobalUtil('getRootComponents', getRootComponents);
     publishGlobalUtil('getDirectives', getDirectives);
     publishGlobalUtil('applyChanges', applyChanges);
+    publishGlobalUtil('getInjectorResolutionPath', getInjectorResolutionPath);
+    publishGlobalUtil('getNgModuleTree', getNgModuleTree);
   }
 }
 
