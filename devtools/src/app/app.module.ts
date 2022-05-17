@@ -26,7 +26,7 @@ class SomeFeatureService {
 @Injectable()
 class SomeFeatureService2 {
   constructor() {
-    console.log(this)
+    console.log(this);
   }
 }
 

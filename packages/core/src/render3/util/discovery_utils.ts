@@ -24,7 +24,7 @@ import {NO_PARENT_INJECTOR, NodeInjectorOffset} from '../interfaces/injector';
 import {TElementNode, TNode, TNodeProviderIndexes} from '../interfaces/node';
 import {RElement} from '../interfaces/renderer_dom';
 import {isLView} from '../interfaces/type_checks';
-import {CLEANUP, CONTEXT, DebugNode, FLAGS, LView, LViewFlags, RootContext, T_HOST, TVIEW, TViewType} from '../interfaces/view';
+import {CLEANUP, CONTEXT, DebugNode, FLAGS, INJECTOR, LView, LViewFlags, RootContext, T_HOST, TVIEW, TViewType} from '../interfaces/view';
 import {NgModuleRef} from '../ng_module_ref';
 
 import {getParentInjectorIndex, getParentInjectorView} from './injector_utils';
@@ -647,14 +647,6 @@ export function getInjectorResolutionPath(element: Element): any[]|null {
         type: 'Module',
         owner: parent.instance,
         injectionTokens: [...injector.records.keys()],
-        findImportingModule(token: any) {
-          let foundModule = undefined;
-          const providerVisitor = (provider: any, ngModule: any) => {
-            if (provider === token || provider.provide === token) {
-              foundModule = ngModule;
-            }
-          } return foundModule;
-        },
         resolveToken(token: any) {
           return injector.get(token, undefined, InjectFlags.Self | InjectFlags.Optional);
         },
@@ -681,6 +673,90 @@ export function getInjectorResolutionPath(element: Element): any[]|null {
           return null;
         },
       })
+    }
+
+    parent = parent._parent ?? parent.parent;
+  }
+
+  return injectorPath;
+}
+
+export function traceTokenInjectorPath(element: Element, tokenToTrace: any): any[]|null {
+  if (tokenToTrace == null) return [];
+
+  const context = getLContext(element);
+  if (context === null) return null;
+
+  const target = element as any as RElement;
+  const nodeIndex = findViaNativeElement(context.lView!, target);
+  const tView = context.lView![TVIEW];
+  const tNode = tView.data[nodeIndex] as TNode;
+  const injectorPath: any[] = [];
+
+  const debugNodes = debugNodeInjectorPath(context.lView!, tNode);
+
+  for (const debugNode of debugNodes) {
+    injectorPath.push({type: 'Element', owner: debugNode.instances[0]})
+
+    const injector = debugNode.injector;
+    if ([...injector.providers, ...injector.viewProviders].find(
+            (provider: any) => provider === tokenToTrace || provider.provide === tokenToTrace ||
+                provider.type === tokenToTrace)) {
+      return injectorPath;
+    }
+  }
+
+  const ngModuleRef = (context.lView![INJECTOR] as any).__ngModuleInjector__;
+  if (ngModuleRef === undefined) {
+    return injectorPath;
+  }
+
+  let parent = ngModuleRef;
+  while (parent !== undefined) {
+    let node = {} as any;
+
+    if (parent instanceof NgModuleRef) {
+      const injector = parent._r3Injector as any;
+
+      if (injector.get(tokenToTrace, undefined, InjectFlags.Self | InjectFlags.Optional) !==
+          undefined) {
+        let foundModule: any = undefined;
+
+        const importPath: any = [];
+
+        const providerVisitor = (provider: any, ngModule: any) => {
+          if (foundModule) {
+            return;
+          }
+
+          importPath.push(ngModule);
+          if (provider === tokenToTrace || provider.provide === tokenToTrace) {
+            foundModule = ngModule;
+          }
+        } console.log(importPath);
+        walkProviderTree(parent.instance.constructor, providerVisitor, [], new Set());
+
+        const node: any = {type: 'Module', owner: parent.instance.constructor};
+        if (foundModule) {
+          node['importedFrom'] = foundModule;
+        }
+        injectorPath.push(node);
+        return injectorPath;
+      }
+
+      injectorPath.push({type: 'Module', owner: parent.instance.constructor});
+    }
+
+    if (parent.scope === 'platform') {
+      injectorPath.push({type: 'Platform', owner: parent});
+
+      if (parent.get(tokenToTrace, undefined, InjectFlags.Self | InjectFlags.Optional)) {
+        return injectorPath;
+      }
+    }
+
+    if (parent instanceof NullInjector) {
+      injectorPath.push({type: 'NullInjector', owner: parent});
     }
 
     parent = parent._parent ?? parent.parent;
@@ -755,99 +831,4 @@ export function getNgModuleTree(rootElement: Element) {
   traverseInjectorTree(ngModuleRef, injectorTree);
 
   return injectorTree[0];
-}
-
-function getNgModuleDebug(ngModule: any, injector: any): any|null {
-  // const context = getLContext(element);
-  // if (context === null) {
-  //   return null;
-  // }
-
-  // const ngModuleRef = (context.lView![INJECTOR] as any).__ngModuleInjector__;
-  // if (ngModuleRef === undefined) {
-  //   return null;
-  // }
-
-  // const ngModule = ngModule;
-  // if (ngModule === undefined) {
-  //   return null;
-  // }
-
-  const getModuleMetadata =
-      (ngModuleConstructor: any) => {
-        const injectorMetadata = ngModuleConstructor['ɵinj'];
-        const moduleMetadata = ngModuleConstructor['ɵmod'];
-
-        let imports = moduleMetadata['imports'] as any[];
-        // recursively grab module metadata from imports
-        imports = imports.map((moduleImport) => getModuleMetadata(moduleImport));
-
-        return {
-          type: ngModuleConstructor,
-          imports,
-          providers: injectorMetadata['providers'],
-          bootstrap: moduleMetadata['bootstrap'],
-          exports: moduleMetadata['exports'],
-          declarations: moduleMetadata['declarations']
-        };
-      }
-
-  const moduleMetadata = getModuleMetadata(ngModule.constructor);
-
-  const findModuleMetadataForToken = (diToken: any, moduleMetadata: any):
-      any|undefined => {
-        if (diToken == null || moduleMetadata == null) {
-          return;
-        }
-
-        if (!Array.isArray(moduleMetadata.providers)) {
-          return;
-        }
-
-        let foundProvider = moduleMetadata.providers.find((provider: any) => {
-          return provider === diToken || provider.provide === diToken;
-        });
-
-        if (foundProvider !== undefined) {
-          return moduleMetadata;
-        }
-
-        for (const moduleImportMetaData of moduleMetadata.imports) {
-          foundProvider = findModuleMetadataForToken(diToken, moduleImportMetaData);
-          if (foundProvider === undefined) {
-            continue;
-          }
-
-          return foundProvider;
-        }
-      }
-
-  const getProviderInstance = (diToken: any) => {
-    let currentInjector = injector;
-    let record = null;
-
-    while (record === null) {
-      if (injector instanceof NullInjector) {
-        break;
-      }
-
-      if (!injector.records.has(diToken)) {
-        injector =
-            injector.parent instanceof NgModuleRef ? injector.parent._r3Injector : injector.parent;
-        continue;
-      }
-
-      record = injector.records.get(diToken);
-    }
-
-    if (record === null) return null;
-
-    return {
-      instance: record.value,
-      source: injector.source,
-      importedFrom: findModuleMetadataForToken(diToken, moduleMetadata)
-    };
-  };
-
-  return {metadata: moduleMetadata, getProviderInstance};
 }
