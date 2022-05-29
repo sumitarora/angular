@@ -5,7 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {ReflectionCapabilities} from '../../reflection/reflection_capabilities';
+import {getInjectorDef} from '../../di/interface/defs';
+import {walkProviderTree} from '../../di/provider_collection';
 import {assertDefined} from '../../util/assert';
 import {global} from '../../util/global';
 import {setProfiler} from '../profiler';

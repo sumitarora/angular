@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {DirectivePosition} from 'protocol';
 
 import {IndexedNode} from '../../directive-forest/index-forest';
@@ -18,12 +18,23 @@ import {FlatNode} from '../../property-resolver/element-property-resolver';
   styleUrls: ['./property-tab-body.component.scss'],
 })
 export class PropertyTabBodyComponent {
-  @Input() currentSelectedElement: IndexedNode|null;
+  @Input()
+  set currentSelectedElement(element: IndexedNode|null) {
+    this._currentSelectedElement = element;
+    this.directives = this.getCurrentDirectives();
+  };
   @Output() inspect = new EventEmitter<{node: FlatNode; directivePosition: DirectivePosition}>();
+  directives: string[] = [];
 
-  getCurrentDirectives(): string[]|undefined {
+  get currentSelectedElement(): IndexedNode|null {
+    return this._currentSelectedElement;
+  }
+
+  private _currentSelectedElement: IndexedNode|null = null;
+
+  getCurrentDirectives(): string[] {
     if (!this.currentSelectedElement) {
-      return;
+      return [];
     }
     const directives = this.currentSelectedElement.directives.map((d) => d.name);
     if (this.currentSelectedElement.component) {

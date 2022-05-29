@@ -54,4 +54,7 @@ import {DialogComponent} from './dialog.component';
   bootstrap: [],
 })
 export class TodoAppModule {
+  constructor() {
+    (window as any).TodoAppModule = TodoAppModule;
+  }
 }

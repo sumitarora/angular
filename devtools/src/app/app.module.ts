@@ -89,6 +89,6 @@ export const foo = new InjectionToken('foo');
 })
 export class AppModule {
   constructor() {
-    console.log(this);
+    (window as any).AppModule = AppModule;
   }
 }

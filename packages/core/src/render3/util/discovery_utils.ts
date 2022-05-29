@@ -9,6 +9,7 @@
 import {ChangeDetectionStrategy} from '../../change_detection/constants';
 import {InjectFlags, Provider, Type} from '../../core';
 import {Injector} from '../../di/injector';
+import {getInjectorDef} from '../../di/interface/defs';
 import {NullInjector} from '../../di/null_injector';
 import {walkProviderTree} from '../../di/provider_collection';
 import {ViewEncapsulation} from '../../metadata/view';
@@ -648,7 +649,7 @@ export function getInjectorResolutionPath(element: Element): any[]|null {
         owner: parent.instance,
         injectionTokens: [...injector.records.keys()],
         resolveToken(token: any) {
-          return injector.get(token, undefined, InjectFlags.Self | InjectFlags.Optional);
+          return injector.get(token, null, InjectFlags.Self | InjectFlags.Optional);
         },
       });
     }
@@ -694,6 +695,7 @@ export function traceTokenInjectorPath(element: Element, tokenToTrace: any): any
   const injectorPath: any[] = [];
 
   const debugNodes = debugNodeInjectorPath(context.lView!, tNode);
+  const DEVTOOLS_NOT_FOUND = {};
 
   for (const debugNode of debugNodes) {
     injectorPath.push({type: 'Element', owner: debugNode.instances[0]})
@@ -713,34 +715,53 @@ export function traceTokenInjectorPath(element: Element, tokenToTrace: any): any
 
   let parent = ngModuleRef;
   while (parent !== undefined) {
-    let node = {} as any;
-
     if (parent instanceof NgModuleRef) {
       const injector = parent._r3Injector as any;
 
-      if (injector.get(tokenToTrace, undefined, InjectFlags.Self | InjectFlags.Optional) !==
-          undefined) {
-        let foundModule: any = undefined;
+      if (injector.get(tokenToTrace, DEVTOOLS_NOT_FOUND, InjectFlags.Self) !== DEVTOOLS_NOT_FOUND) {
+        const findImportPathForTokenInModule =
+            (moduleConstructor: any, tokenToTrace: any) => {
+              let foundModule = false;
+              let pathCursor: any = undefined;
+              let path: any[] = [];
 
-        const importPath: any = [];
+              const traceTokenInjectorPathVisitor = (provider: any, ngModule: any) => {
+                if (foundModule) {
+                  const imports = getInjectorDef(ngModule)?.imports ?? [];
 
-        const providerVisitor = (provider: any, ngModule: any) => {
-          if (foundModule) {
-            return;
-          }
+                  if (imports.find(moduleImport => moduleImport === pathCursor)) {
+                    pathCursor = ngModule;
+                    path.unshift(pathCursor);
+                  }
 
-          importPath.push(ngModule);
-          if (provider === tokenToTrace || provider.provide === tokenToTrace) {
-            foundModule = ngModule;
-          }
-        } console.log(importPath);
-        walkProviderTree(parent.instance.constructor, providerVisitor, [], new Set());
+                  return;
+                }
 
-        const node: any = {type: 'Module', owner: parent.instance.constructor};
-        if (foundModule) {
-          node['importedFrom'] = foundModule;
-        }
-        injectorPath.push(node);
+                const foundToken = provider === tokenToTrace || provider.provide === tokenToTrace;
+                if (foundToken) {
+                  foundModule = true;
+                  pathCursor = ngModule;
+                  path.unshift(pathCursor);
+                }
+              };
+
+              walkProviderTree(moduleConstructor, traceTokenInjectorPathVisitor, [], new Set());
+              return path.reverse().map((owner: any, index: number) => {
+                let type = index === 0 ? 'Module' : 'ImportedModule';
+                return {type, owner};
+              });
+            }
+
+        const importPath =
+            findImportPathForTokenInModule(parent.instance.constructor, tokenToTrace);
+
+        injectorPath.push({
+          type: 'Module',
+          owner: parent.instance.constructor,
+          importedFrom: importPath[importPath.length - 1],
+          importPath
+        });
+
         return injectorPath;
       }
 
@@ -750,7 +771,7 @@ export function traceTokenInjectorPath(element: Element, tokenToTrace: any): any
     if (parent.scope === 'platform') {
       injectorPath.push({type: 'Platform', owner: parent});
 
-      if (parent.get(tokenToTrace, undefined, InjectFlags.Self | InjectFlags.Optional)) {
+      if (parent.get(tokenToTrace, DEVTOOLS_NOT_FOUND, InjectFlags.Self)) {
         return injectorPath;
       }
     }
