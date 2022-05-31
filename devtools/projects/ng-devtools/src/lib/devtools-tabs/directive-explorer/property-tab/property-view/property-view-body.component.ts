@@ -20,13 +20,14 @@ import {FlatNode} from '../../property-resolver/element-property-resolver';
 })
 export class PropertyViewBodyComponent {
   @Input() controller: DirectivePropertyResolver;
+  @Input() directiveInjectorParameters: any;
   @Input() directiveInputControls: DirectiveTreeData;
   @Input() directiveOutputControls: DirectiveTreeData;
   @Input() directiveStateControls: DirectiveTreeData;
 
   @Output() inspect = new EventEmitter<{node: FlatNode; directivePosition: DirectivePosition}>();
 
-  categoryOrder = [0, 1, 2];
+  categoryOrder = [1, 2, 3];
 
   get panels(): {
     title: string; hidden: boolean; controls: DirectiveTreeData; documentation: string,

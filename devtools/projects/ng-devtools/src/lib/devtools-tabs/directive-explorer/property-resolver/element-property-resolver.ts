@@ -36,6 +36,7 @@ export class ElementPropertyResolver {
   }
 
   setProperties(indexedNode: IndexedNode, data: DirectivesProperties): void {
+    console.log({data});
     this._flushDeletedProperties(data);
 
     Object.keys(data).forEach((key) => {

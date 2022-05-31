@@ -55,6 +55,8 @@ export class DirectivePropertyResolver {
     this._initDataSources();
   }
 
+  get directiveInjectorParameters(): any{return this._props.metadata?.injectorParameters}
+
   get directiveInputControls(): DirectiveTreeData {
     return getDirectiveControls(this._inputsDataSource);
   }

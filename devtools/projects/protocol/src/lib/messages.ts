@@ -60,6 +60,7 @@ export interface DirectiveMetadata {
   outputs: {[name: string]: string};
   encapsulation: ViewEncapsulation;
   onPush: boolean;
+  injectorParameters?: any[]
 }
 
 export interface Properties {
