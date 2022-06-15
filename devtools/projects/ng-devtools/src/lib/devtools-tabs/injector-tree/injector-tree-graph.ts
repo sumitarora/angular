@@ -4,6 +4,13 @@ import * as d3 from 'd3';
 export interface InjectorTreeGraphNode {}
 export interface InjectorTreeGraphEdges {}
 
+const typeToClass = {
+  Module: 'node-module',
+  Element: 'node-element',
+  NullInjector: 'node-null'
+}
+
+
 export class InjectorTreeGraph {
   nodes: InjectorTreeGraphNode[] = []
   edges: InjectorTreeGraphEdges[] = [];
@@ -58,18 +65,14 @@ export class InjectorTreeGraph {
                          })
                      .attr('transform', (d) => `translate(${d.y},${d.x})`);
 
-    const typeToClass = {
-      Module: 'node-module',
-      Element: 'node-element',
-      NullInjector: 'node-null'
-    } node.append('circle')
-                            .attr(
-                                'class',
-                                (d) => {
-                                  console.log(d);
-                                  return typeToClass[d.data.injector.type] ?? ''
-                                })
-                            .attr('r', 6);
+    node.append('circle')
+        .attr(
+            'class',
+            (d) => {
+              console.log(d);
+              return typeToClass[d.data.injector.type] ?? ''
+            })
+        .attr('r', 6);
 
     node.append('text')
         .attr('dy', (d) => (d.depth === 0 || !d.children ? '0.35em' : '-1.50em'))

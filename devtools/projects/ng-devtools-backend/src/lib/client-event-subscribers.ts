@@ -98,11 +98,11 @@ const getLatestInjectorGraphCallback = (messageBus: MessageBus<Events>) => (
   const injectorGraph = getInjectorGraph(rootNode);
   const serializeInjectorGraph = (injectorGraph):
       InjectorGraphNode => {
-        const node: InjectorGraphNode = {
+        return {
           owner: injectorGraph.owner.name,
           type: injectorGraph.type,
           children: injectorGraph.children.map((child) => serializeInjectorGraph(child))
-        } return node;
+        };
       }
 
                            messageBus.emit(
@@ -250,7 +250,8 @@ export interface SerializableComponentTreeNode extends
 }
 
 
-const getInjectorResolutionPath = (window as any).ng.getInjectorResolutionPath;
+const getInjectorResolutionPath = (element: Node|undefined) =>
+    (window as any).ng.getInjectorResolutionPath(element);
 
 // Here we drop properties to prepare the tree for serialization.
 // We don't need the component instance, so we just traverse the tree

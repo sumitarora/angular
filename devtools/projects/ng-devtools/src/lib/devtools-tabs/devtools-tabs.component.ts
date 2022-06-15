@@ -115,10 +115,13 @@ export class DevToolsTabsComponent implements OnInit, OnDestroy {
   directiveForestUpdated(): void {
     console.log({new: this.forest});
     const injectorPaths: any[][] = [];
-    const grabInjectorPaths = (node) => {
-      injectorPaths.push(node.resolutionPath.slice().reverse());
-      node.children.forEach(child => grabInjectorPaths(child));
-    } grabInjectorPaths(this.forest[0]);
+    const grabInjectorPaths =
+        (node) => {
+          injectorPaths.push(node.resolutionPath.slice().reverse());
+          node.children.forEach(child => grabInjectorPaths(child));
+        }
+
+    grabInjectorPaths(this.forest[0]);
 
     const equalNode = (a, b) => a.owner === b.owner && a.type === b.type;
     const pathExists = (path, value):
