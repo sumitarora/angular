@@ -63,6 +63,36 @@ const chromeWindowExtensions = {
       return traverseDirective(node.component.instance, objectPath);
     }
   },
+  findInjectorProperty(args) {
+    const {directivePosition, injectorParameter, type} = JSON.parse(args);
+    const node = queryDirectiveForest(directivePosition.element, buildDirectiveForest());
+    if (node === null) {
+      console.error(`Cannot find element associated with node ${directivePosition}`);
+      return undefined;
+    }
+
+    const isDirective = directivePosition.directive !== undefined &&
+        node.directives[directivePosition.directive] &&
+        typeof node.directives[directivePosition.directive] === 'object';
+
+    const instance = isDirective ? node.directives[directivePosition.directive].instance :
+                                   node.component?.instance;
+    if (!instance) {
+      return;
+    }
+    const foundParameter = (window as any)
+                               ?.ng.getDirectiveMetadata(instance)
+                               ?.injectorParameters[injectorParameter.paramIndex];
+
+    if (type === 'token') {
+      const token = foundParameter.token;
+      console.log((window as any)?.ng.traceTokenInjectorPath(node.nativeElement, token));
+      return token
+    }
+
+    console.log(foundParameter.value)
+    return foundParameter.value.constructor;
+  }
 };
 
 const traverseDirective = (dir: any, objectPath: string[]): any => {

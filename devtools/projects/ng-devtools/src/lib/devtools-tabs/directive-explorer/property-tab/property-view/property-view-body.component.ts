@@ -26,8 +26,11 @@ export class PropertyViewBodyComponent {
   @Input() directiveStateControls: DirectiveTreeData;
 
   @Output() inspect = new EventEmitter<{node: FlatNode; directivePosition: DirectivePosition}>();
+  @Output()
+  inspectInjectorParameter = new EventEmitter<
+      {injectorParameter: any; directivePosition: DirectivePosition, type: 'token'|'value'}>();
 
-  categoryOrder = [1, 2, 3];
+  categoryOrder = [0, 1, 2];
 
   get panels(): {
     title: string; hidden: boolean; controls: DirectiveTreeData; documentation: string,
@@ -69,6 +72,16 @@ export class PropertyViewBodyComponent {
 
   drop(event: CdkDragDrop<any, any>): void {
     moveItemInArray(this.categoryOrder, event.previousIndex, event.currentIndex);
+  }
+
+  inspectInjectorParameterToken(injectorParameter: any): void {
+    this.inspectInjectorParameter.emit(
+        {injectorParameter, directivePosition: this.controller.directivePosition, type: 'token'});
+  }
+
+  inspectInjectorParameterValue(injectorParameter: any): void {
+    this.inspectInjectorParameter.emit(
+        {injectorParameter, directivePosition: this.controller.directivePosition, type: 'value'});
   }
 
   handleInspect(node: FlatNode): void {

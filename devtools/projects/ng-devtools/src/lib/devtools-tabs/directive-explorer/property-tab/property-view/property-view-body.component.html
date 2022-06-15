@@ -1,4 +1,4 @@
-<mat-accordion cdkDropList (cdkDropListDropped)="drop($event)" *ngIf="controlsLoaded" [multi]="true">
+<mat-accordion cdkDropList (cdkDropLismat-chipropped)="drop($event)" *ngIf="controlsLoaded" [multi]="true">
   <div class="mat-accordion-content" *ngIf="directiveInjectorParameters" cdkDrag>
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header collapsedHeight="25px" expandedHeight="25px">
@@ -15,12 +15,17 @@
           </a>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <ng-property-view-tree
-        [dataSource]="panels[index].controls.dataSource"
-        [treeControl]="panels[index].controls.treeControl"
-        (updateValue)="updateValue($event)"
-        (inspect)="handleInspect($event)"
-      ></ng-property-view-tree>
+      <ol class="injector-param" *ngFor="let parameter of directiveInjectorParameters">
+        <li class="parameter">
+          <span class="parameter-name" (click)="inspectInjectorParameterToken(parameter)">{{ parameter.token }}: </span>
+          <span class="parameter-value" (click)="inspectInjectorParameterValue(parameter)">{{ parameter.value }}</span>
+        </li>
+        <ng-container *ngFor="let flag of parameter.flags | keyvalue">
+          <li class="parameter-flag" *ngIf="flag.value">
+            {{ flag.key }}
+          </li>
+        </ng-container>
+      </ol>
     </mat-expansion-panel>
   </div>
 

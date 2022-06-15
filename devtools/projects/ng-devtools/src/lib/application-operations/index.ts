@@ -12,4 +12,6 @@ export abstract class ApplicationOperations {
   abstract viewSource(position: ElementPosition): void;
   abstract selectDomElement(position: ElementPosition): void;
   abstract inspect(directivePosition: DirectivePosition, objectPath: string[]): void;
+  abstract inspectInjectorParameter(
+      directivePosition: DirectivePosition, injectorParameter: any, type: 'token'|'value'): void;
 }

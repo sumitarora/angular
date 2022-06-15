@@ -105,10 +105,18 @@ export interface ComponentExplorerViewQuery {
   propertyQuery: PropertyQuery;
 }
 
+
 export interface ComponentExplorerView {
   forest: DevToolsNode[];
   properties?: DirectivesProperties;
 }
+
+export interface InjectorGraphViewQuery {
+  directivePosition: DirectivePosition;
+  paramIndex: number;
+}
+
+export interface InjectorGraphView {}
 
 export interface LifecycleProfile {
   ngOnInit?: number;
@@ -201,4 +209,7 @@ export interface Events {
 
   enableTimingAPI: () => void;
   disableTimingAPI: () => void;
+
+  getLatestInjectorGraphView: (query?: InjectorGraphViewQuery) => void;
+  latestInjectorGraphView: (view: InjectorGraphView) => void;
 }

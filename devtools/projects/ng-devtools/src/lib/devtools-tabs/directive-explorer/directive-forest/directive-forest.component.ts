@@ -31,6 +31,10 @@ export class DirectiveForestComponent implements OnInit, OnDestroy {
     const result = this._updateForest(forest);
     const changed =
         result.movedItems.length || result.newItems.length || result.removedItems.length;
+    if (changed) {
+      this.directiveForestUpdated.emit();
+    }
+
     if (this.currentSelectedElement && changed) {
       this._reselectNodeOnUpdate();
     }
@@ -48,6 +52,7 @@ export class DirectiveForestComponent implements OnInit, OnDestroy {
   @Output() highlightComponent = new EventEmitter<ElementPosition>();
   @Output() removeComponentHighlight = new EventEmitter<void>();
   @Output() toggleInspector = new EventEmitter<void>();
+  @Output() directiveForestUpdated = new EventEmitter<void>();
 
   @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
 

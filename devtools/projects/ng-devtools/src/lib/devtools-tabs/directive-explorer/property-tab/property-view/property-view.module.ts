@@ -10,6 +10,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {MatChipsModule} from '@angular/material/chips';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
@@ -35,14 +36,8 @@ import {PropertyViewComponent} from './property-view.component';
     PropertyEditorComponent,
   ],
   imports: [
-    MatToolbarModule,
-    MatIconModule,
-    MatTreeModule,
-    MatTooltipModule,
-    CommonModule,
-    MatExpansionModule,
-    DragDropModule,
-    FormsModule,
+    MatToolbarModule, MatIconModule, MatTreeModule, MatTooltipModule, CommonModule,
+    MatExpansionModule, DragDropModule, FormsModule, MatChipsModule
   ],
   exports: [
     PropertyViewComponent,

@@ -15,16 +15,9 @@ import {ZoneUnawareIFrameMessageBus} from '../../zone-unaware-iframe-message-bus
 
 import {DemoAppComponent} from './demo-app.component';
 import {HeavyComponent} from './heavy.component';
+import {Target, Target2} from './todo/app-todo.component';
 import {ZippyComponent} from './zippy.component';
 
-@Injectable()
-export class Target {
-}
-(window as any).Target = Target;
-@Injectable()
-export class Target2 {
-}
-(window as any).Target2 = Target2;
 
 @NgModule({
   imports: [],

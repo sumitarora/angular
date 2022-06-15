@@ -38,6 +38,7 @@
     "check-tooling-setup": "yarn tsc --project .ng-dev/tsconfig.json",
     "devtools:devserver": "ibazel run //devtools/src:devserver",
     "devtools:build:chrome": "bazelisk build --config snapshot --//devtools/projects/shell-browser/src:flag_browser=chrome -- devtools/projects/shell-browser/src:prodapp",
+    "devtools:build:chrome:dev": "bazelisk build --config snapshot --//devtools/projects/shell-browser/src:flag_browser=chrome -- devtools/projects/shell-browser/src:devapp",
     "devtools:build:firefox": "bazelisk build --config snapshot --//devtools/projects/shell-browser/src:flag_browser=firefox -- devtools/projects/shell-browser/src:prodapp",
     "devtools:test": "bazelisk test --config snapshot --//devtools/projects/shell-browser/src:flag_browser=chrome -- //devtools/..."
   },

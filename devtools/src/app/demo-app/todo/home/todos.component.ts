@@ -51,7 +51,7 @@ export class TodosComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    fib(40);
+    // fib(40);
     if (typeof window !== 'undefined') {
       window.removeEventListener('hashchange', this.hashListener);
     }

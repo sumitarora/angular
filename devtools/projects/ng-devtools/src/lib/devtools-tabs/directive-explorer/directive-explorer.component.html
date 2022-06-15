@@ -9,6 +9,7 @@
           (highlightComponent)="highlightComponent($event)"
           (removeComponentHighlight)="removeComponentHighlight()"
           (toggleInspector)="toggleInspector.emit()"
+          (directiveForestUpdated)="directiveForestUpdated.emit()"
           [forest]="forest"
           [currentSelectedElement]="currentSelectedElement"
           [showCommentNodes]="showCommentNodes"
@@ -31,6 +32,7 @@
       <ng-property-tab
         [currentSelectedElement]="currentSelectedElement"
         (inspect)="inspect($event)"
+        (inspectInjectorParameter)="inspectInjectorParameter($event)"
         (viewSource)="viewSource()"
       ></ng-property-tab>
     </div>

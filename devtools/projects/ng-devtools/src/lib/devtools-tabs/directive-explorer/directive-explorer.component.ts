@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, ViewChild,} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild,} from '@angular/core';
 import {ComponentExplorerView, ComponentExplorerViewQuery, DevToolsNode, DirectivePosition, ElementPosition, Events, MessageBus, PropertyQuery, PropertyQueryTypes,} from 'protocol';
 
 import {SplitComponent} from '../../../lib/vendor/angular-split/public_api';
@@ -46,9 +46,10 @@ const sameDirectives = (a: IndexedNode, b: IndexedNode) => {
     },
   ],
 })
-export class DirectiveExplorerComponent implements OnInit, OnDestroy {
+export class DirectiveExplorerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() showCommentNodes = false;
   @Output() toggleInspector = new EventEmitter<void>();
+  @Output() directiveForestUpdated = new EventEmitter<void>();
 
   @ViewChild(DirectiveForestComponent) directiveForest: DirectiveForestComponent;
   @ViewChild(BreadcrumbsComponent) breadcrumbs: BreadcrumbsComponent;
@@ -57,23 +58,29 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
   directiveForestSplitArea: ElementRef;
 
   currentSelectedElement: IndexedNode|null = null;
-  forest: DevToolsNode[];
+  @Input() forest: DevToolsNode[] = [];
   splitDirection: 'horizontal'|'vertical' = 'horizontal';
   parents: FlatNode[]|null = null;
 
-  private _resizeObserver = new ResizeObserver((entries) => this._ngZone.run(() => {
-    const resizedEntry = entries[0];
-
-    if (resizedEntry.target === this.splitElementRef.nativeElement) {
-      this.splitDirection = resizedEntry.contentRect.width <= 500 ? 'vertical' : 'horizontal';
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.forest) {
     }
+  }
 
-    if (!this.breadcrumbs) {
-      return;
-    }
+  private _resizeObserver =
+      new ResizeObserver((entries: ResizeObserverEntry[]) => this._ngZone.run(() => {
+        const resizedEntry = entries[0];
 
-    this.breadcrumbs.updateScrollButtonVisibility();
-  }));
+        if (resizedEntry.target === this.splitElementRef.nativeElement) {
+          this.splitDirection = resizedEntry.contentRect.width <= 500 ? 'vertical' : 'horizontal';
+        }
+
+        if (!this.breadcrumbs) {
+          return;
+        }
+
+        this.breadcrumbs.updateScrollButtonVisibility();
+      }));
 
   private _clickedElement: IndexedNode|null = null;
   private _refreshRetryTimeout: any = null;
@@ -114,7 +121,6 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
 
   subscribeToBackendEvents(): void {
     this._messageBus.on('latestComponentExplorerView', (view: ComponentExplorerView) => {
-      this.forest = view.forest;
       this.currentSelectedElement = this._clickedElement;
       if (view.properties && this.currentSelectedElement) {
         this._propResolver.setProperties(this.currentSelectedElement, view.properties);
@@ -209,5 +215,14 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
               {node: PropertyFlatNode; directivePosition: DirectivePosition}): void {
     const objectPath = constructPathOfKeysToPropertyValue(node.prop);
     this._appOperations.inspect(directivePosition, objectPath);
+  }
+
+  inspectInjectorParameter({injectorParameter, directivePosition, type}: {
+    injectorParameter: any; directivePosition: DirectivePosition; type: 'token' | 'value'
+  }): void {
+    this._appOperations.inspectInjectorParameter(directivePosition, injectorParameter, type);
+    this._messageBus.emit(
+        'getLatestInjectorGraphView',
+        [{directivePosition: directivePosition, paramIndex: injectorParameter.paramIndex}])
   }
 }

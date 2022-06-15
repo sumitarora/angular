@@ -87,9 +87,25 @@ export const getDirectiveMetadata = (dir: any): DirectiveMetadata|undefined => {
 
   let injectorParameters = metadata.injectorParameters;
   if (injectorParameters) {
-    injectorParameters = injectorParameters.map((injectorParameter: any) => {
+    injectorParameters = injectorParameters.map((injectorParameter: any, index: number) => {
+      if (injectorParameter.flags.Attribute) {
+        return {
+          token: injectorParameter.token, value: injectorParameter.value,
+              flags: injectorParameter.flags, paramIndex: index
+        }
+      }
+
+      if (injectorParameter.flags.Inject) {
+        return {
+          token: injectorParameter.token.constructor.name,
+              value: injectorParameter.value.constructor.name, flags: injectorParameter.flags,
+              paramIndex: index
+        }
+      }
+
       return {
-        name: injectorParameter.token.name, flags: injectorParameter.flags
+        token: injectorParameter.token.name, value: injectorParameter.value.constructor.name,
+            flags: injectorParameter.flags, paramIndex: index
       }
     });
     serializedMetadata['injectorParameters'] = injectorParameters;

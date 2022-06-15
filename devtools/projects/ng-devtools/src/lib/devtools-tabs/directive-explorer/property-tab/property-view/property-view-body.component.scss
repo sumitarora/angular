@@ -57,3 +57,67 @@
     }
   }
 }
+
+
+:host-context(.dark-theme) {
+  .injector-param {
+    .parameter-value {
+      &:hover {
+        background: #4da1ff;
+        color: #fff;
+      }
+    }
+
+    .parameter-name {
+      color: #55c8bd;
+
+      &:hover {
+        background: #4da1ff;
+        color: #fff;
+      }
+    }
+  }
+
+  .injector-param {
+    .parameter-flag {
+      background: #ffffff;
+    }
+  }
+}
+
+.injector-param {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  padding-left: calc(1rem + 18px);
+  gap: 0.5rem;
+  font-size: .8rem;
+  height: 25px;
+  align-items: center;
+
+  .parameter-name {
+    color: #d23a32;
+    cursor: pointer;
+
+    &:hover {
+      background: #4da1ff;
+      color: #fff;
+    }
+  }
+  
+  .parameter-value {
+    cursor: pointer;
+    
+    &:hover {
+      background: #4da1ff;
+      color: #fff;
+    }
+  }
+
+  .parameter-flag {
+    padding: 0px 6px;
+    background: #3e3e3e;
+    border-radius: 10px;
+  }
+}

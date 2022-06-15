@@ -615,25 +615,12 @@ export function getInjectorResolutionPath(element: Element): any[]|null {
 
   const debugNodes = debugNodeInjectorPath(context.lView!, tNode);
 
-  const debugNodeToInjector =
-      (debugNode: any) => {
-        return {
-          type: 'Element',
-          owner: debugNode.instances[0],
-          injectionTokens: [
-            ...debugNode.injector.providers, ...debugNode.injector.viewProviders
-          ].map((providerDef: any) => {
-            return providerDef.type ?? providerDef;
-          }),
-          resolveToken(token: any) {
-            return nodeInjector.get(token, null, InjectFlags.Self | InjectFlags.Optional);
-          }
-        };
-      }
+  const debugNodeToInjector = (debugNode: any) =>
+      ({type: 'Element', owner: debugNode.instances[0].constructor})
 
-                          debugNodes.forEach((node: any) => {
-                            injectorPath.push(debugNodeToInjector(node));
-                          });
+  debugNodes.forEach((node: any) => {
+    injectorPath.push(debugNodeToInjector(node));
+  });
 
   const ngModuleRef = (context.lView![INJECTOR] as any).__ngModuleInjector__;
   if (ngModuleRef === undefined) {
@@ -643,36 +630,20 @@ export function getInjectorResolutionPath(element: Element): any[]|null {
   let parent = ngModuleRef;
   while (parent !== undefined) {
     if (parent instanceof NgModuleRef) {
-      const injector = parent._r3Injector as any;
       injectorPath.push({
         type: 'Module',
-        owner: parent.instance,
-        injectionTokens: [...injector.records.keys()],
-        resolveToken(token: any) {
-          return injector.get(token, null, InjectFlags.Self | InjectFlags.Optional);
-        },
+        owner: parent.instance.constructor,
       });
     }
 
     if (parent.scope === 'platform') {
-      injectorPath.push({
-        type: 'Platform',
-        owner: parent,
-        injectionTokens: [...parent.records.keys()],
-        resolveToken(token: any) {
-          return this.owner.get(token, undefined, InjectFlags.Self | InjectFlags.Optional);
-        },
-      })
+      injectorPath.push({type: 'Platform', owner: parent.constructor})
     }
 
     if (parent instanceof NullInjector) {
       injectorPath.push({
         type: 'NullInjector',
-        owner: parent,
-        injectionTokens: [],
-        resolveToken(_token: any) {
-          return null;
-        },
+        owner: parent.constructor,
       })
     }
 
@@ -746,7 +717,7 @@ export function traceTokenInjectorPath(element: Element, tokenToTrace: any): any
               };
 
               walkProviderTree(moduleConstructor, traceTokenInjectorPathVisitor, [], new Set());
-              return path.reverse().map((owner: any, index: number) => {
+              return path.map((owner: any, index: number) => {
                 let type = index === 0 ? 'Module' : 'ImportedModule';
                 return {type, owner};
               });
@@ -830,20 +801,23 @@ export function getNgModuleTree(rootElement: Element) {
   const injectorTree: any[] = [];
   const traverseInjectorTree =
       (ngModuleRef: any, children: any[] = []) => {
+        const importedModules = new Set<any>();
+        const collectImportedModules = (_provider: any, ngModule: any) => {
+          importedModules.add(ngModule);
+        };
+        walkProviderTree(ngModuleRef.instance.constructor, collectImportedModules, [], new Set());
+
         const node: any = {
-          instance: ngModuleRef.instance,
-          injectionTokens: [...ngModuleRef._r3Injector.records.keys()],
-          resolveToken(token: any) {
-            return ngModuleRef._r3Injector.records.get(token)?.value;
-          },
-          get children() {
+          type: 'Module',
+          owner: ngModuleRef.instance.constructor,
+          children: (() => {
             const childNodes: any[] = [];
             (ngModuleRef.__children__ ?? []).forEach((moduleRef: any) => {
               traverseInjectorTree(moduleRef, childNodes);
             });
 
             return childNodes;
-          }
+          })()
         };
 
         children.push(node);
