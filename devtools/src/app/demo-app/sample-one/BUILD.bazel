@@ -1,0 +1,35 @@
+load("//devtools/tools:ng_module.bzl", "ng_module")
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+sass_binary(
+    name = "sample_one_component_styles",
+    src = "sample-one.component.scss",
+)
+
+ng_module(
+    name = "sample-one",
+    srcs = [
+        "child-five.component.ts",
+        "child-four.component.ts",
+        "child-one.component.ts",
+        "child-six.component.ts",
+        "child-three.component.ts",
+        "child-two.component.ts",
+        "di-tree.component.ts",
+        "sample-one.component.ts",
+        "sample-one.module.ts",
+    ],
+    angular_assets = [
+        "sample-one.component.html",
+        ":sample_one_component_styles",
+    ],
+    deps = [
+        "//devtools/src/app/demo-app/sample-one/services",
+        "//packages/common",
+        "//packages/core",
+        "//packages/forms",
+        "//packages/router",
+    ],
+)

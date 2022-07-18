@@ -1,0 +1,30 @@
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+load("//devtools/tools:ng_module.bzl", "ng_module")
+
+package(default_visibility = ["//visibility:public"])
+
+sass_binary(
+    name = "injector_graph_component_styles",
+    src = "injector-graph.component.scss",
+)
+
+ng_module(
+    name = "injector-graph",
+    srcs = [
+        "injector-graph.component.ts",
+        "injector-graph.module.ts",
+    ],
+    angular_assets = [
+        "injector-graph.component.html",
+        ":injector_graph_component_styles",
+    ],
+    deps = [
+        "//devtools/projects/ng-devtools/src/lib/devtools-tabs/directive-explorer/directive-forest/component-data-source",
+        "//devtools/projects/ng-devtools/src/lib/devtools-tabs/directive-explorer/directive-forest/index-forest",
+        "//packages/common",
+        "//packages/core",
+        "@npm//@angular/material",
+        "@npm//@types",
+        "@npm//rxjs",
+    ],
+)

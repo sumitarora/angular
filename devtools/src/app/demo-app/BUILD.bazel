@@ -54,6 +54,7 @@ ng_module(
     deps = [
         "//devtools/projects/ng-devtools-backend",
         "//devtools/src:zone-unaware-iframe_message_bus",
+        "//devtools/src/app/demo-app/sample-one",
         "//devtools/src/app/demo-app/todo",
         "//packages/core",
         "//packages/elements",

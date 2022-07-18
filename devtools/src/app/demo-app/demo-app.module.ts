@@ -77,6 +77,11 @@ export class Module1 {
         component: DemoAppComponent,
         children: [
           {
+            path: 'sample-one',
+            loadChildren: () =>
+                import('./sample-one/sample-one.module').then((m) => m.SampleOneModule),
+          },
+          {
             path: '',
             loadChildren: () => import('./todo/app.module').then((m) => m.TodoAppModule),
           },

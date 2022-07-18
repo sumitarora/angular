@@ -1,0 +1,14 @@
+:host ::ng-deep {
+  .outer {
+    padding: 10px;
+    border: 2px dashed red;
+  }
+  .child {
+    padding: 10px;
+    border: 2px dashed blue;
+  }
+  .service {
+    padding: 10px;
+    border: 2px dashed green;
+  }
+}

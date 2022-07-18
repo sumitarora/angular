@@ -20,6 +20,7 @@ import {AngularSplitModule} from '../../vendor/angular-split/public_api';
 
 import {DirectiveExplorerComponent} from './directive-explorer.component';
 import {DirectiveForestModule} from './directive-forest/directive-forest.module';
+import {InjectorGraphModule} from './injector-graph/injector-graph.module';
 import {PropertyTabModule} from './property-tab/property-tab.module';
 
 @NgModule({
@@ -36,6 +37,7 @@ import {PropertyTabModule} from './property-tab/property-tab.module';
     MatSnackBarModule,
     AngularSplitModule,
     DirectiveForestModule,
+    InjectorGraphModule,
     MatTooltipModule,
   ],
 })
