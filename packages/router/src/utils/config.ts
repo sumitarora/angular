@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {createEnvironmentInjector, EnvironmentInjector, isStandalone, Type, ɵisNgModule as isNgModule, ɵRuntimeError as RuntimeError} from '@angular/core';
+import {createEnvironmentInjector, EnvironmentInjector, isStandalone, publishGlobalUtil, Type, ɵisNgModule as isNgModule, ɵRuntimeError as RuntimeError} from '@angular/core';
 
 import {EmptyOutletComponent} from '../components/empty_outlet';
 import {RuntimeErrorCode} from '../errors';
@@ -252,3 +252,5 @@ export function getClosestRouteInjector(snapshot: ActivatedRouteSnapshot): Envir
 
   return null;
 }
+
+publishGlobalUtil('getLoadedRoutes', getLoadedRoutes);

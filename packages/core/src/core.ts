@@ -42,6 +42,8 @@ export {createComponent, reflectComponentType, ComponentMirror} from './render3/
 export {isStandalone} from './render3/definition';
 export {ApplicationConfig, mergeApplicationConfig} from './application_config';
 
+export {publishGlobalUtil} from './render3/util/global_utils';
+
 import {global} from './util/global';
 if (typeof ngDevMode !== 'undefined' && ngDevMode) {
   // This helper is to give a reasonable error message to people upgrading to v9 that have not yet

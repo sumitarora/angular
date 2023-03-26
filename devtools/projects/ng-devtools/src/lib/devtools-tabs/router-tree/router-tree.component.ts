@@ -25,6 +25,7 @@ export class RouterTreeComponent implements AfterViewInit {
     this.render();
   }
 
+  flattenedRoutes: Route[] = [];
   private _routes: Route[] = [];
   private tree: d3.TreeLayout<{}>;
   private tooltip: any;
@@ -88,7 +89,7 @@ export class RouterTreeComponent implements AfterViewInit {
             .append('g')
             .attr('class', 'node')
             .on('mouseover',
-                (n) => {
+                (e, n) => {
                   const content = `
           <b>Name:</b> ${n.data.name}<br/>
           <b>Path:</b> ${n.data.path}<br/>
@@ -98,8 +99,8 @@ export class RouterTreeComponent implements AfterViewInit {
         `;
                   this.tooltip.style('padding', '4px 8px').transition().style('opacity', 0.9);
                   this.tooltip.html(content)
-                      .style('left', (d3 as any).event.pageX + 8 + 'px')
-                      .style('top', (d3 as any).event.pageY + 8 + 'px');
+                      .style('left', e.pageX + 8 + 'px')
+                      .style('top', e.pageY + 8 + 'px');
                 })
             .on('mouseout', () => this.tooltip.transition().style('opacity', 0))
             .attr('transform', (d) => `translate(${d.y},${d.x})`);

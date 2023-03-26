@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {ComponentExplorerViewQuery, ComponentType, DevToolsNode, DirectivePosition, DirectiveType, ElementPosition, Events, MessageBus, ProfilerFrame,} from 'protocol';
+import {ComponentExplorerViewQuery, ComponentType, DevToolsNode, DirectivePosition, DirectiveType, ElementPosition, Events, MessageBus, ProfilerFrame, Route} from 'protocol';
 import {debounceTime} from 'rxjs/operators';
 
 import {appIsAngularInDevMode, appIsAngularIvy, appIsSupportedAngularVersion, getAngularVersion,} from './angular-check';
@@ -16,6 +16,7 @@ import {unHighlight} from './highlighter';
 import {disableTimingAPI, enableTimingAPI, initializeOrGetDirectiveForestHooks} from './hooks';
 import {start as startProfiling, stop as stopProfiling} from './hooks/capture';
 import {ComponentTreeNode} from './interfaces';
+import {parseRoutes} from './router-tree';
 import {setConsoleReference} from './set-console-reference';
 import {serializeDirectiveState} from './state-serializer/state-serializer';
 import {runOutsideAngular} from './utils';
@@ -137,8 +138,13 @@ const getNestedPropertiesCallback = (messageBus: MessageBus<Events>) => (
 
 // todo: parse router tree with framework APIs after they are developed
 const getRoutes = (messageBus: MessageBus<Events>) => {
-  // Return empty router tree to disable tab.
-  messageBus.emit('updateRouterTree', [[]]);
+  const node =
+      queryDirectiveForest([0], initializeOrGetDirectiveForestHooks().getIndexedDirectiveForest());
+  let routes: Route[] = [];
+  if (node?.component?.instance?.router) {
+    routes = [parseRoutes(node?.component?.instance?.router)];
+  }
+  messageBus.emit('updateRouterTree', [routes]);
 };
 
 const checkForAngular = (messageBus: MessageBus<Events>): void => {

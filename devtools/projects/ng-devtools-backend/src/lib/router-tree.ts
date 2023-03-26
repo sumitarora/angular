@@ -34,7 +34,8 @@ export function parseRoutes(router: Router): Route {
 function assignChildrenToParent(parentPath: string|null, children: Routes): Route[] {
   return children.map((child: AngularRoute) => {
     const childName = childRouteName(child);
-    const childDescendents: [any] = (child as any)._loadedConfig?.routes || child.children;
+    const loadedRoutes = (window as any).ng.getLoadedRoutes(child as any);
+    const childDescendents: [any] = loadedRoutes || child.children;
 
     // only found in aux routes, otherwise property will be undefined
     const isAuxRoute = !!child.outlet;

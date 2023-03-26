@@ -133,16 +133,16 @@ export {
   ɵgetUnknownPropertyStrictMode,
   ɵsetUnknownPropertyStrictMode
 } from './instructions/all';
-export {ɵɵi18n, ɵɵi18nApply, ɵɵi18nAttributes, ɵɵi18nEnd, ɵɵi18nExp,ɵɵi18nPostprocess, ɵɵi18nStart} from './instructions/i18n';
-export {RenderFlags} from './interfaces/definition';
+export { ɵɵi18n, ɵɵi18nApply, ɵɵi18nAttributes, ɵɵi18nEnd, ɵɵi18nExp, ɵɵi18nPostprocess, ɵɵi18nStart } from './instructions/i18n';
+export { RenderFlags } from './interfaces/definition';
 export {
   AttributeMarker
 } from './interfaces/node';
-export {CssSelectorList, ProjectionSlots} from './interfaces/projection';
+export { CssSelectorList, ProjectionSlots } from './interfaces/projection';
 export {
   setClassMetadata,
 } from './metadata';
-export {NgModuleFactory, NgModuleRef, createEnvironmentInjector} from './ng_module_ref';
+export { NgModuleFactory, NgModuleRef, createEnvironmentInjector } from './ng_module_ref';
 export {
   ɵɵpipe,
   ɵɵpipeBind1,
@@ -167,7 +167,8 @@ export {
   ɵɵcontentQuery,
   ɵɵloadQuery,
   ɵɵqueryRefresh,
-  ɵɵviewQuery} from './query';
+  ɵɵviewQuery
+} from './query';
 export {
   ɵɵdisableBindings,
 
@@ -175,11 +176,11 @@ export {
   ɵɵresetView,
   ɵɵrestoreView,
 } from './state';
-export {NO_CHANGE} from './tokens';
-export { ɵɵresolveBody, ɵɵresolveDocument,ɵɵresolveWindow} from './util/misc_utils';
-export { ɵɵtemplateRefExtractor} from './view_engine_compatibility_prebound';
+export { NO_CHANGE } from './tokens';
+export { ɵɵresolveBody, ɵɵresolveDocument, ɵɵresolveWindow } from './util/misc_utils';
+export { ɵɵtemplateRefExtractor } from './view_engine_compatibility_prebound';
 // clang-format on
-
+export {publishGlobalUtil} from './util/global_utils';
 export {
   ComponentDebugMetadata,
   ComponentDef,
