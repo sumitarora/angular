@@ -1,8 +1,71 @@
 <div class="router-tree-wrapper">
-  <div class="no-routes" [hidden]="routes?.length !== 0">
-    <h1>There are no routes to display.</h1>
+  <div>
+    <mat-button-toggle-group #group="matButtonToggleGroup" (change)="viewGraph($event)">
+      <mat-button-toggle value="graph" aria-label="Graph" checked>
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20">
+          <path
+            d="M600-120v-120H440v-400h-80v120H80v-320h280v120h240v-120h280v320H600v-120h-80v320h80v-120h280v320H600ZM160-760v160-160Zm520 400v160-160Zm0-400v160-160Zm0 160h120v-160H680v160Zm0 400h120v-160H680v160ZM160-600h120v-160H160v160Z"
+          />
+        </svg>
+      </mat-button-toggle>
+      <mat-button-toggle value="table" aria-label="Table">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20">
+          <path
+            d="M360-120q-33 0-56.5-23.5T280-200v-400q0-33 23.5-56.5T360-680h400q33 0 56.5 23.5T840-600v400q0 33-23.5 56.5T760-120H360Zm0-400h400v-80H360v80Zm160 160h80v-80h-80v80Zm0 160h80v-80h-80v80ZM360-360h80v-80h-80v80Zm320 0h80v-80h-80v80ZM360-200h80v-80h-80v80Zm320 0h80v-80h-80v80Zm-480-80q-33 0-56.5-23.5T120-360v-400q0-33 23.5-56.5T200-840h400q33 0 56.5 23.5T680-760v40h-80v-40H200v400h40v80h-40Z"
+          />
+        </svg>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <input
+      matInput
+      (input)="searchRoutes($event)"
+      placeholder="Search routes"
+      class="filter-input"
+    />
   </div>
-  <svg #svgContainer class="svg-container" [hidden]="routes?.length === 0">
+
+  @if (showGraph) {
+  <svg #svgContainer class="svg-container">
     <g #mainGroup></g>
   </svg>
+  } @else {
+  <br />
+  <table class="routesTable">
+    <tr>
+      <th>Path</th>
+      <th>Path Match</th>
+      <th>Component</th>
+      <th>CanActivateGuards</th>
+      <th>Providers</th>
+      <th>Title</th>
+      <th>Children #</th>
+      <th>Data</th>
+      <th>Aux</th>
+      <th>Lazy</th>
+    </tr>
+    @for (route of flattenedRoutes; let index= $index; track index) {
+    <tr [ngClass]="route.class">
+      <td>{{ route.path }}</td>
+      <td>{{ route.pathMatch }}</td>
+      <td>
+        @if(route.component.includes('[Lazy]') || route.component.includes('no-name') ||
+        route.component.includes('redirecting')) {
+        {{ route.component }}
+        } @else {
+        <a class="text-link" href="#">{{ route.component }}</a>
+        }
+      </td>
+      <td>{{ route.canActivateGuards }}</td>
+      <td>{{ route.providers }}</td>
+      <td>{{ route.title }}</td>
+      <td>{{ route?.children?.length }}</td>
+      <td>{{ route.data ? (route.data | json) : '' }}</td>
+      <td>{{ route.isAux }}</td>
+      <td>{{ route.isLazy }}</td>
+    </tr>
+    } @empty {
+    <p>No routes found!</p>
+    }
+  </table>
+  }
 </div>
