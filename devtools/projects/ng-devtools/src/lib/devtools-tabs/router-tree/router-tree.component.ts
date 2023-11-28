@@ -25,6 +25,7 @@ export class RouterTreeComponent implements AfterViewInit {
     this.render();
   }
 
+  flattenedRoutes: Route[] = [];
   private _routes: Route[] = [];
   private tree: d3.TreeLayout<{}>;
   private tooltip: any;
@@ -57,9 +58,12 @@ export class RouterTreeComponent implements AfterViewInit {
 
     const root: any = this._routes[0];
 
-    const nodes = this.tree(d3.hierarchy(
-        root.children.length === 0 || root.children.length > 1 ? root : root.children[0],
-        (d) => d.children));
+    const nodes = this.tree(
+        d3.hierarchy(
+            root.children.length === 0 || root.children.length > 1 ? root : root.children[0],
+            (d) => d.children,
+            ),
+    );
 
     // Define the div for the tooltip
     this.tooltip = d3.select('body')
@@ -73,12 +77,15 @@ export class RouterTreeComponent implements AfterViewInit {
         .enter()
         .append('path')
         .attr('class', 'link')
-        .attr('d', (d) => `
+        .attr(
+            'd',
+            (d) => `
             M${d.y},${d.x}
             C${(d.y + (d as any).parent.y) / 2},
               ${d.x} ${(d.y + (d as any).parent.y) / 2},
               ${(d as any).parent.x} ${(d as any).parent.y},
-              ${(d as any).parent.x}`);
+              ${(d as any).parent.x}`,
+        );
 
     // Declare the nodes
     const node =
@@ -88,7 +95,7 @@ export class RouterTreeComponent implements AfterViewInit {
             .append('g')
             .attr('class', 'node')
             .on('mouseover',
-                (n) => {
+                (e, n) => {
                   const content = `
           <b>Name:</b> ${n.data.name}<br/>
           <b>Path:</b> ${n.data.path}<br/>
@@ -98,8 +105,8 @@ export class RouterTreeComponent implements AfterViewInit {
         `;
                   this.tooltip.style('padding', '4px 8px').transition().style('opacity', 0.9);
                   this.tooltip.html(content)
-                      .style('left', (d3 as any).event.pageX + 8 + 'px')
-                      .style('top', (d3 as any).event.pageY + 8 + 'px');
+                      .style('left', e.pageX + 8 + 'px')
+                      .style('top', e.pageY + 8 + 'px');
                 })
             .on('mouseout', () => this.tooltip.transition().style('opacity', 0))
             .attr('transform', (d) => `translate(${d.y},${d.x})`);
@@ -134,10 +141,13 @@ export class RouterTreeComponent implements AfterViewInit {
     const svgRect = this.svgContainer.nativeElement.getBoundingClientRect();
     const gElRect = this.g.nativeElement.getBoundingClientRect();
 
-    g.attr('transform', `translate(
+    g.attr(
+        'transform',
+        `translate(
         ${svgRect.left - gElRect.left + svgPadding},
         ${svgRect.top - gElRect.top + svgPadding}
-      )`);
+      )`,
+    );
     const height = gElRect.height + svgPadding * 2;
     const width = gElRect.width + svgPadding * 2;
     svg.attr('height', height).attr('width', width);
