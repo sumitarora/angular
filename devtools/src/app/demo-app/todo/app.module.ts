@@ -39,6 +39,10 @@ import {DialogComponent} from './dialog.component';
             loadChildren: () => import('./about/about.module').then((m) => m.AboutModule),
           },
           {
+            path: 'di',
+            loadChildren: () => import('./di/di.module').then((m) => m.DIModule),
+          },
+          {
             path: '**',
             redirectTo: 'app',
           },

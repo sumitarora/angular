@@ -22,6 +22,7 @@ ng_module(
     ],
     deps = [
         "//devtools/src/app/demo-app/todo/about",
+        "//devtools/src/app/demo-app/todo/di",
         "//devtools/src/app/demo-app/todo/home",
         "//packages/common",
         "//packages/core",
