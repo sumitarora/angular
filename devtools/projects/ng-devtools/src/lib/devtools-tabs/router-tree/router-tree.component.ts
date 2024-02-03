@@ -17,18 +17,22 @@ import {Events, MessageBus, Route} from 'protocol';
   standalone: true,
 })
 export class RouterTreeComponent implements AfterViewInit {
-  @ViewChild('svgContainer', {static: true}) private svgContainer!: ElementRef;
-  @ViewChild('mainGroup', {static: true}) private g!: ElementRef;
+  @ViewChild('svgContainer', {static: false}) private svgContainer!: ElementRef;
+  @ViewChild('mainGroup', {static: false}) private g!: ElementRef;
 
   @Input()
   set routes(routes: Route[]) {
     this._routes = routes;
-    this.render();
+    this.renderGraph();
   }
 
+  showGraph = true;
+  flattenedRoutes: any[] = [];
   private _routes: Route[] = [];
   private tree!: d3.TreeLayout<{}>;
   private tooltip: any;
+  private searchString: string | undefined;
+  private filterRegex = new RegExp('.^');
 
   constructor(private _messageBus: MessageBus<Events>) {}
 
@@ -36,7 +40,54 @@ export class RouterTreeComponent implements AfterViewInit {
     this._messageBus.emit('getRoutes');
   }
 
-  render(): void {
+  viewGraph($event: any): void {
+    this.showGraph = $event.value === 'graph';
+    if (this.showGraph) {
+      setTimeout(() => this.renderGraph());
+    } else {
+      this.renderTable();
+    }
+  }
+
+  renderTable() {
+    this.flattenedRoutes = this.flattenedRoutes.map((r) => {
+      const isMatched =
+        this.filterRegex.test(r.path.toLowerCase()) || this.filterRegex.test(r.path.toLowerCase());
+      if (isMatched) {
+        return {...r, class: {'selected-route': true, 'active-route': r.isActive}};
+      }
+      return {...r, class: {'active-route': r.isActive}};
+    });
+  }
+
+  searchRoutes($event: any) {
+    this.searchString = $event.target.value;
+    if (this.searchString) {
+      this.filterRegex = new RegExp(this.searchString.toLowerCase() || '.^');
+    } else {
+      this.filterRegex = new RegExp('.^');
+    }
+
+    if (this.showGraph) {
+      setTimeout(() => this.renderGraph());
+    } else {
+      this.renderTable();
+    }
+  }
+
+  flattenRoutes(route: Route) {
+    this.flattenedRoutes.push({...route, class: {'active-route': route?.isActive}});
+    if (route.children && route.children?.length > 0) {
+      route.children?.forEach((r) => this.flattenRoutes(r));
+    }
+  }
+
+  renderGraph(): void {
+    this.flattenedRoutes = [];
+    if (this._routes && this._routes[0]) {
+      this.flattenRoutes(this._routes[0]);
+    }
+
     if (this._routes.length === 0 || !this.g) {
       return;
     }
@@ -95,26 +146,39 @@ export class RouterTreeComponent implements AfterViewInit {
       .enter()
       .append('g')
       .attr('class', 'node')
-      .on('mouseover', (n) => {
+      .on('mouseover', (e: any, n: any) => {
         const content = `
-          <b>Name:</b> ${n.data.name}<br/>
           <b>Path:</b> ${n.data.path}<br/>
-          <b>Auxiliary Route:</b> ${n.data.isAux}<br/>
-          <b>Specificity:</b> ${n.data.specificity}<br/>
-          <b>Handler:</b> ${n.data.handler}<br/>
+          <b>Title:</b> ${n.data.title || ''}<br/>
+          <b>Path Match:</b> ${n.data.pathMatch}<br/>
+          <b>Component:</b> ${n.data.component}<br/>
+          <b>Providers:</b> ${n.data.providers || ''}<br/>
+          <b>Children:</b> ${n.data.children?.length || ''}<br/>
+          <b>Data:</b> ${n.data.data || ''}<br/>
+          <b>Aux:</b> ${n.data.isAux}<br/>
+          <b>Lazy:</b> ${n.data.isLazy}<br/>
         `;
-        this.tooltip.style('padding', '4px 8px').transition().style('opacity', 0.9);
+        this.tooltip.style('padding', '6px 8px').transition().style('opacity', 0.9);
+        this.tooltip.style('border', '1px solid #9dbced');
         this.tooltip
           .html(content)
-          .style('left', (d3 as any).event.pageX + 8 + 'px')
-          .style('top', (d3 as any).event.pageY + 8 + 'px');
+          .style('left', e.pageX + 8 + 'px')
+          .style('top', e.pageY + 8 + 'px');
       })
       .on('mouseout', () => this.tooltip.transition().style('opacity', 0))
       .attr('transform', (d) => `translate(${d.y},${d.x})`);
 
     node
       .append('circle')
-      .attr('class', (d) => ((d.data as any).isAux ? 'node-aux-route' : 'node-route'))
+      .attr('class', (d: any) => {
+        let cssClass = 'node-route';
+        if ((d.data as any).isAux) {
+          cssClass = 'node-aux-route';
+        } else if ((d.data as any).isLazy) {
+          cssClass = 'node-lazy-route';
+        }
+        return cssClass;
+      })
       .attr('r', 6);
 
     node
@@ -129,10 +193,21 @@ export class RouterTreeComponent implements AfterViewInit {
           return 13;
         }
       })
+      .attr('class', (d: any) => {
+        if (d.data.isActive) {
+          return 'node-active';
+        }
+
+        const isMatched =
+          this.filterRegex.test(d.data.path.toLowerCase()) ||
+          this.filterRegex.test(d.data.path.toLowerCase());
+        return isMatched ? 'node-search ' : '';
+      })
       .attr('text-anchor', (d) => (d.children ? 'end' : 'start'))
       .text((d) => {
-        const label = (d.data as any).name;
-        return label.length > 20 ? label.slice(0, 17) + '...' : label;
+        const label = (d.data as any).path;
+        // return label.length > 25 ? label.slice(0, 22) + '...' : label;
+        return label;
       });
 
     // reset transform

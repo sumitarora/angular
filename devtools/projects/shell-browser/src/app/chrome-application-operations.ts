@@ -13,6 +13,7 @@ import {DirectivePosition, ElementPosition} from 'protocol';
 
 export class ChromeApplicationOperations extends ApplicationOperations {
   override viewSource(position: ElementPosition, directiveIndex: number): void {
+    console.log(position, directiveIndex);
     if (chrome.devtools) {
       chrome.devtools.inspectedWindow.eval(
         `inspect(inspectedApplication.findConstructorByPosition('${position}', ${directiveIndex}))`,

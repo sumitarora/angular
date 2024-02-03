@@ -38,6 +38,7 @@ import {FlatNode} from './directive-forest/component-data-source';
 import {DirectiveForestComponent} from './directive-forest/directive-forest.component';
 import {IndexedNode} from './directive-forest/index-forest';
 import {constructPathOfKeysToPropertyValue} from './property-resolver/directive-property-resolver';
+<<<<<<< HEAD
 import {
   ElementPropertyResolver,
   FlatNode as PropertyFlatNode,
@@ -46,6 +47,9 @@ import {PropertyTabComponent} from './property-tab/property-tab.component';
 import {SplitAreaDirective} from '../../vendor/angular-split/lib/component/splitArea.directive';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
+=======
+import {ElementPropertyResolver, FlatNode as PropertyFlatNode,} from './property-resolver/element-property-resolver';
+>>>>>>> c97211f54a (feat: adding router tree)
 
 const sameDirectives = (a: IndexedNode, b: IndexedNode) => {
   if ((a.component && !b.component) || (!a.component && b.component)) {
@@ -101,6 +105,7 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
   parents: FlatNode[] | null = null;
   showHydrationNodeHighlights: boolean = false;
 
+<<<<<<< HEAD
   private _resizeObserver = new ResizeObserver((entries) =>
     this._ngZone.run(() => {
       this.refreshHydrationNodeHighlightsIfNeeded();
@@ -116,17 +121,33 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
 
       this.breadcrumbs.updateScrollButtonVisibility();
     }),
+=======
+  private _resizeObserver = new ResizeObserver(
+      (entries) => this._ngZone.run(() => {
+        const resizedEntry = entries[0];
+
+        if (resizedEntry.target === this.splitElementRef.nativeElement) {
+          this.splitDirection = resizedEntry.contentRect.width <= 500 ? 'vertical' : 'horizontal';
+        }
+
+        if (!this.breadcrumbs) {
+          return;
+        }
+
+        this.breadcrumbs.updateScrollButtonVisibility();
+      }),
+>>>>>>> c97211f54a (feat: adding router tree)
   );
 
   private _clickedElement: IndexedNode | null = null;
   private _refreshRetryTimeout: null | ReturnType<typeof setTimeout> = null;
 
   constructor(
-    private _appOperations: ApplicationOperations,
-    private _messageBus: MessageBus<Events>,
-    private _propResolver: ElementPropertyResolver,
-    private _cdr: ChangeDetectorRef,
-    private _ngZone: NgZone,
+      private _appOperations: ApplicationOperations,
+      private _messageBus: MessageBus<Events>,
+      private _propResolver: ElementPropertyResolver,
+      private _cdr: ChangeDetectorRef,
+      private _ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -161,6 +182,7 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
   subscribeToBackendEvents(): void {
     this._messageBus.on('latestComponentExplorerView', (view: ComponentExplorerView) => {
       this.forest = view.forest;
+      console.log(this.forest);
       this.currentSelectedElement = this._clickedElement;
       if (view.properties && this.currentSelectedElement) {
         this._propResolver.setProperties(this.currentSelectedElement, view.properties);
@@ -174,6 +196,7 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
     const success = this._messageBus.emit('getLatestComponentExplorerView', [
       this._constructViewQuery(),
     ]);
+    this._messageBus.emit('getRoutes');
     // If the event was not throttled, we no longer need to retry.
     if (success) {
       this._refreshRetryTimeout && clearTimeout(this._refreshRetryTimeout);
@@ -189,6 +212,7 @@ export class DirectiveExplorerComponent implements OnInit, OnDestroy {
 
   viewSource(directiveName: string): void {
     // find the index of the directive with directiveName in this.currentSelectedElement.directives
+    console.log('d', directiveName);
 
     if (!this.currentSelectedElement) {
       return;

@@ -205,12 +205,19 @@ export interface UpdatedStateData {
 export interface Route {
   name: string;
   hash: string | null;
-  path: string;
   specificity: string | null;
   handler: string;
-  data: any;
+  path: string;
+  isActive: boolean;
+  pathMatch?: 'prefix' | 'full';
+  component: string;
+  canActivateGuards?: string;
+  providers?: string;
+  title?: string;
   children?: Array<Route>;
+  data?: any;
   isAux: boolean;
+  isLazy: boolean;
 }
 
 export type Topic = keyof Events;
