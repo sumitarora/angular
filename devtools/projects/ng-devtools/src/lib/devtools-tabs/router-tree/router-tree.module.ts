@@ -9,7 +9,7 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatButtonToggleGroup, MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
@@ -30,5 +30,4 @@ import {RouterTreeComponent} from './router-tree.component';
   ],
   exports: [RouterTreeComponent],
 })
-export class RouterTreeModule {
-}
+export class RouterTreeModule {}
