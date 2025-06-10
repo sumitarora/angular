@@ -5,12 +5,12 @@
   @switch (type()) {
     @case ('chip') {
       <button mat-stroked-button (click)="click.emit('')" [disabled]="isRouteWithoutComponent()">
-        {{ data() }}
+        {{ data()[dataKey()] }}
       </button>
     }
     @case ('flag') {
-      <span class="{{ data() ? 'tag-active' : 'tag-inactive' }}">
-        {{ data() }}
+      <span class="{{ data()[dataKey()] ? 'tag-active' : 'tag-inactive' }}">
+        {{ data()[dataKey()] }}
       </span>
     }
     @case ('list') {
@@ -23,7 +23,13 @@
       </div>
     }
     @default {
-      <span class="row-data">{{ data() }}</span>
+      <span class="row-data">
+        @if (isJsonData()) {
+          {{ data()[dataKey()] | json }}
+        } @else {
+          {{ data()[dataKey()] }}
+        }
+      </span>
     }
   }
 </td>

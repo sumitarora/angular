@@ -25,6 +25,7 @@
     "prepare": "husky",
     "ng-dev": "tsx --tsconfig .ng-dev/tsconfig.json node_modules/@angular/ng-dev/bundles/cli.mjs",
     "build": "tsx --tsconfig scripts/tsconfig.json scripts/build/build-packages-dist.mts",
+    "clean": "bazelisk clean --expunge",
     "test": "bazelisk test",
     "test:ci": "bazelisk test -- //... -//integration/... -//adev/... -//devtools/... -//modules/ssr-benchmarks/...",
     "integration-tests:ci": "bazelisk test -- //integration/...",
